@@ -1,0 +1,23 @@
+{
+  "name": "back_end",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node sever.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "daemon": "^1.1.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "extensionless": "^1.9.9",
+    "mysql2": "^3.14.0",
+    "nodemon": "^3.1.9",
+    "sequelize": "^6.37.6",
+    "sequelize-auto": "^0.8.8"
+  }
+}
