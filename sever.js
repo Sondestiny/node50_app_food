@@ -1,25 +1,14 @@
 import express from 'express'
+import bodyParser from 'body-parser'
 import sequelize, { models } from './src/Common/Sequelizes/ConnectDB.js'
+import rootRouter from './src/Route/root.route.js'
+import { handlerError } from './src/Common/helpers/error.helper.js'
 const app = express()
 const port = 3000
-
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.json())
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
-
-// tạo model từ database
-//npx sequelize-auto -h localhost -d node_50_cybersoft -u root -x 1234 -p 3307  --dialect mysql -o src/models -a src/models/additional.json -l esm
-app.get('/sequelize/getRoles', async (req, res, next)=> {
-  const roles = await models.Roles.findAll({raw: true})
-  console.log(roles)
-  res.json(roles)
-})
-app.get('/sequelize/getUser', async (req, res, next)=> {
-  const users = await models.Users.findAll({raw: true})
-  console.log(users)
-  res.json(users)
-})
+app.use(rootRouter)
+app.use(handlerError)
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
