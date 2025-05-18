@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Banners {
+  id         Int       @id @default(autoincrement())
+  movie_id   Int
+  image      String?   @db.VarChar(255)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+  is_deleted Boolean?  @default(false)
+  delete_at  DateTime? @db.Timestamp(0)
+  delete_by  Int?      @default(0)
+  Movies     Movies    @relation(fields: [movie_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Banners_ibfk_1")
+
+  @@index([movie_id], map: "movie_id")
+}
+
+model Bookings {
+  id           Int       @id @default(autoincrement())
+  user_id      Int
+  showtime_id  Int
+  seat_id      Int
+  booking_time DateTime? @default(now()) @db.Timestamp(0)
+  created_at   DateTime? @default(now()) @db.Timestamp(0)
+  updated_at   DateTime? @default(now()) @db.Timestamp(0)
+  is_deleted   Boolean?  @default(false)
+  delete_at    DateTime? @db.Timestamp(0)
+  delete_by    Int?      @default(0)
+  Users        Users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Bookings_ibfk_1")
+  ShowTimes    ShowTimes @relation(fields: [showtime_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Bookings_ibfk_2")
+
+  @@index([showtime_id], map: "showtime_id")
+  @@index([user_id], map: "user_id")
+}
+
+model Movies {
+  id            Int         @id @default(autoincrement())
+  movie_name    String      @db.VarChar(255)
+  trailer       String?     @db.VarChar(255)
+  image         String?     @db.VarChar(255)
+  discription   String?     @db.VarChar(500)
+  premiere_date DateTime?   @db.Timestamp(0)
+  review        Int?
+  hot           Boolean?
+  is_showing    Boolean?
+  coming_soon   Boolean?
+  created_at    DateTime?   @default(now()) @db.Timestamp(0)
+  updated_at    DateTime?   @default(now()) @db.Timestamp(0)
+  is_deleted    Boolean?    @default(false)
+  delete_at     DateTime?   @db.Timestamp(0)
+  delete_by     Int?        @default(0)
+  Banners       Banners[]
+  ShowTimes     ShowTimes[]
+}
+
+model Seats {
+  id         Int       @id @default(autoincrement())
+  seat_name  String    @db.VarChar(255)
+  seat_type  String    @db.VarChar(255)
+  theater_id Int
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+  is_deleted Boolean?  @default(false)
+  delete_at  DateTime? @db.Timestamp(0)
+  delete_by  Int?      @default(0)
+  Theaters   Theaters  @relation(fields: [theater_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "Seats_ibfk_1")
+
+  @@index([theater_id], map: "theater_id")
+}
+
+model ShowTimes {
+  id           Int        @id @default(autoincrement())
+  theater_id   Int
+  movie_id     Int
+  date_release DateTime?  @db.Timestamp(0)
+  price        Float?     @db.Float
+  created_at   DateTime?  @default(now()) @db.Timestamp(0)
+  updated_at   DateTime?  @default(now()) @db.Timestamp(0)
+  is_deleted   Boolean?   @default(false)
+  delete_at    DateTime?  @db.Timestamp(0)
+  delete_by    Int?       @default(0)
+  Bookings     Bookings[]
+  Movies       Movies     @relation(fields: [movie_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ShowTimes_ibfk_1")
+  Theaters     Theaters   @relation(fields: [theater_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ShowTimes_ibfk_2")
+
+  @@index([movie_id], map: "movie_id")
+  @@index([theater_id], map: "theater_id")
+}
+
+model Theater_complexs {
+  id                   Int             @id @default(autoincrement())
+  name_theater_complex String?         @db.VarChar(255)
+  address              String?         @db.VarChar(255)
+  theater_system_id    Int
+  created_at           DateTime?       @default(now()) @db.Timestamp(0)
+  updated_at           DateTime?       @default(now()) @db.Timestamp(0)
+  is_deleted           Boolean?        @default(false)
+  delete_at            DateTime?       @db.Timestamp(0)
+  delete_by            Int?            @default(0)
+  Theater_systems      Theater_systems @relation(fields: [theater_system_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "Theater_complexs_ibfk_1")
+  Theaters             Theaters[]
+
+  @@index([theater_system_id], map: "theater_system_id")
+}
+
+model Theater_systems {
+  id                  Int                @id @default(autoincrement())
+  name_theater_system String?            @db.VarChar(255)
+  logo                String?            @db.VarChar(255)
+  created_at          DateTime?          @default(now()) @db.Timestamp(0)
+  updated_at          DateTime?          @default(now()) @db.Timestamp(0)
+  is_deleted          Boolean?           @default(false)
+  delete_at           DateTime?          @db.Timestamp(0)
+  delete_by           Int?               @default(0)
+  Theater_complexs    Theater_complexs[]
+}
+
+model Theaters {
+  id                 Int              @id @default(autoincrement())
+  theater_name       String           @db.VarChar(255)
+  theater_complex_id Int
+  created_at         DateTime?        @default(now()) @db.Timestamp(0)
+  updated_at         DateTime?        @default(now()) @db.Timestamp(0)
+  is_deleted         Boolean?         @default(false)
+  delete_at          DateTime?        @db.Timestamp(0)
+  delete_by          Int?             @default(0)
+  Seats              Seats[]
+  ShowTimes          ShowTimes[]
+  Theater_complexs   Theater_complexs @relation(fields: [theater_complex_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "Theaters_ibfk_1")
+
+  @@index([theater_complex_id], map: "theater_complex_id")
+}
+
+model Users {
+  id         Int        @id @default(autoincrement())
+  account    Int
+  fullname   String     @db.VarChar(255)
+  email      String     @db.VarChar(255)
+  phone      String     @db.VarChar(255)
+  PASSWORD   String     @db.VarChar(255)
+  TypeUser   String?    @db.VarChar(255)
+  created_at DateTime?  @default(now()) @db.Timestamp(0)
+  updated_at DateTime?  @default(now()) @db.Timestamp(0)
+  is_deleted Boolean?   @default(false)
+  delete_at  DateTime?  @db.Timestamp(0)
+  delete_by  Int?       @default(0)
+  Bookings   Bookings[]
+}
