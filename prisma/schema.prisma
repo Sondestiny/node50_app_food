@@ -22,21 +22,17 @@ model Banners {
 }
 
 model Bookings {
-  id           Int       @id @default(autoincrement())
-  user_id      Int
+  account      Int       @id
   showtime_id  Int
   seat_id      Int
   booking_time DateTime? @default(now()) @db.Timestamp(0)
-  created_at   DateTime? @default(now()) @db.Timestamp(0)
-  updated_at   DateTime? @default(now()) @db.Timestamp(0)
+  create_at    DateTime? @default(now()) @db.Timestamp(0)
+  update_at    DateTime? @default(now()) @db.Timestamp(0)
   is_deleted   Boolean?  @default(false)
-  delete_at    DateTime? @db.Timestamp(0)
-  delete_by    Int?      @default(0)
-  Users        Users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Bookings_ibfk_1")
+  Users        Users     @relation(fields: [account], references: [account], onDelete: NoAction, onUpdate: NoAction, map: "Bookings_ibfk_1")
   ShowTimes    ShowTimes @relation(fields: [showtime_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Bookings_ibfk_2")
 
   @@index([showtime_id], map: "showtime_id")
-  @@index([user_id], map: "user_id")
 }
 
 model Movies {
@@ -138,17 +134,14 @@ model Theaters {
 }
 
 model Users {
-  id         Int        @id @default(autoincrement())
-  account    Int
-  fullname   String     @db.VarChar(255)
-  email      String     @db.VarChar(255)
-  phone      String     @db.VarChar(255)
-  PASSWORD   String     @db.VarChar(255)
-  TypeUser   String?    @db.VarChar(255)
-  created_at DateTime?  @default(now()) @db.Timestamp(0)
-  updated_at DateTime?  @default(now()) @db.Timestamp(0)
-  is_deleted Boolean?   @default(false)
-  delete_at  DateTime?  @db.Timestamp(0)
-  delete_by  Int?       @default(0)
-  Bookings   Bookings[]
+  account    Int       @id
+  fullname   String    @db.VarChar(255)
+  email      String    @unique(map: "email") @db.VarChar(255)
+  phone      String    @unique(map: "phone") @db.VarChar(255)
+  PASSWORD   String    @db.VarChar(255)
+  TypeUser   String?   @db.VarChar(255)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+  is_deleted Boolean?  @default(false)
+  Bookings   Bookings?
 }

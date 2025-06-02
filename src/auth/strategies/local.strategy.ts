@@ -9,12 +9,12 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     constructor (
         private authService : AuthService
     ){
-        super({ usernameField: 'email' })
+        super({ usernameField: 'account' })
     }
 
-    async validate(email:string, password:string): Promise<any> {
-        const user = await this.authService.validateUser(email, password);
-        if (!user) throw new UnauthorizedException('Thông tin đăng nhập không chính xác')
-        return user;
+    async validate(account:string, password:string): Promise<any> {
+        const userValidate = await this.authService.validateUser(Number(account), password);
+        if (!userValidate) throw new UnauthorizedException('Thông tin đăng nhập không chính xác')
+        return userValidate
     }
 }

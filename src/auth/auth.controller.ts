@@ -1,11 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Request, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ProtectGuard } from './guards/protect.guard';
 import { AuthService } from './auth.service';
 import { jwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public } from 'src/decorator/isPublic.decorator';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { UpdateUserDto } from 'src/user/dto/update-user.dto';
+import { LoginDto } from './dto/login.dto';
 
+@UseGuards(jwtAuthGuard)
 @Controller('QuanLyNguoiDung')
 export class AuthController {
     constructor(
@@ -13,9 +16,16 @@ export class AuthController {
     ) {}
     @Public()
     @UseGuards(ProtectGuard)
+    @UsePipes(new ValidationPipe({whitelist: true}))
     @Post('DangNhap')
-    async login( @Request() req) {
-        return this.authService.login(req.user)
+    async login(
+        @Request() req,
+        @Body() body: LoginDto
+    ) {
+        const { account, password } = body;
+        const validateUser = await this.authService.validateUser(account, password)
+        if(!validateUser) throw new BadRequestException('Invalid credentials');
+        return this.authService.login(validateUser.account, validateUser.email)
     }
     @Public()
     @Post('DangKy')
@@ -23,62 +33,87 @@ export class AuthController {
     async register(@Body() createUserDto: CreateUserDto) {
         return await this.authService.register(createUserDto)
     }
-
+    @Public()
     @Get('LayDanhSachLoaiNguoiDung')
     async getTypeUserList() {
         return await this.authService.getTypeUserList()
     }
-
+    @Public()   
     @Get('LayDanhSachNguoiDung')
-    async getUserList() {
-        return await this.authService.getAllUser()
-    }
-
-    @Get('LayDanhSachNguoiDungPhanTrang')
-    async getAllUserPaginated(
-        @Query('MaNhom') typeUser,
-        @Query('tuKhoa') sreach,
-        @Query('soTrang') page = 1,
-        @Query('soPhanTuTrenTrang') limit = 20,
+    async getUserList(
+        @Query('MaNhom') typeUser:string = 'GP01',
+        @Query('tuKhoa') sreach: string = '',
     ) {
-        return await this.authService.getAllUserPaginated(typeUser, sreach, Number(page), Number(limit))
+        return await this.authService.getUserList(typeUser, sreach)
     }
-
+    @Public()
+    @Get('LayDanhSachNguoiDungPhanTrang')
+    async getUserListPaginated(
+        @Query('MaNhom') typeUser:string = 'GP01',
+        @Query('tuKhoa') sreach: string = '',
+        @Query('soTrang') page:string = '1',
+        @Query('soPhanTuTrenTrang') limit:string = '20',
+    ) {
+        return await this.authService.getUserListPaginated(typeUser, sreach, Number(page), Number(limit))
+    }
+    @Public()
     @Get('TimKiemNguoiDung')
-    async sreachUser() {
-        return "Tìm kiếm người Dùng"
+    async sreachUser(
+        @Query('MaNhom') typeUser:string = 'GP01',
+        @Query('tuKhoa') sreach: string = '',
+    ) {
+        return await this.authService.sreachUser(typeUser, sreach)
     }
-    
+    @Public()
     @Get('TimKiemNguoiDungPhanTrang')
-    async sreachUserOfPage() {
-        return "Tìm kiếm người Dùng Phân Trang"
+    async sreachUserOfPage(
+        @Query('MaNhom') typeUser:string = 'GP01',
+        @Query('tuKhoa') sreach: string = '',
+        @Query('soTrang') page:string = '1',
+        @Query('soPhanTuTrenTrang') limit:string = '1',
+    ) {
+        return this.authService.sreachUserOfPage(typeUser, sreach, Number(page), Number(limit))
     }
 
-    @UseGuards(jwtAuthGuard)
+
     @Post('ThongTinTaiKhoan')
     getUserAccount(@Request() req) {
-        return 'Thông tin tài khoản';
+        const account = req.user.account
+        return this.authService.getUserAccount(account);
     }
-
     @Post('LayThongTinNguoiDung')
-    getUserProfile(@Request() req) {
-        return 'Thông tin người dùng';
+    getUserProfile(
+        @Query('taiKhoan') account: string = '',
+        @Request() req) 
+        {
+        return this.authService.getUserInfo(account);
     }
-
     @Post('ThemNguoiDung')
-    addUser(@Request() req) {
-        return 'Thêm Người Dùng';
+    createUser(
+        @Request() req,
+        @Body() createUserDto : CreateUserDto
+    ) {
+        return this.authService.createUser(createUserDto);
     }
     @Put('CapNhatThongTinNguoiDung')
-    updateUserByPut(@Request() req) {
-        return 'Cập nhật thông tin Người Dùng';
+    updateUserByPut(
+        @Request() req,
+        @Body() updateUserDto : UpdateUserDto
+    ) {
+        const account= req.user.account
+        return this.authService.updatedUser(updateUserDto, Number(account));
     }
     @Post('CapNhatThongTinNguoiDung')
     updateUserByPost(@Request() req) {
         return 'Cập nhật thông tin Người Dùng';
     }
+
     @Delete('XoaNguoiDung')
-    deleteuser(@Request() req) {
-        return 'Xóa Người Dùng';
+    deleteuser(
+        @Request() req,
+        @Query('taiKhoan') account: string 
+    ) {
+        const user_id = req.user.id
+        return this.authService.deleteUser(Number(account))
     }
 }
