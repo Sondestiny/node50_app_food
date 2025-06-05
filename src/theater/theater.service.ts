@@ -14,8 +14,18 @@ export class TheaterService {
       where: {
         id
       },
-      include: {
-        Theater_complexs: true,
+      select: {
+        name_theater_system: true,
+        Theater_complexs: {
+          select: {
+            name_theater_complex: true,
+            Theaters: {
+              select: {
+                theater_name: true,
+              }
+            }
+          }
+        },
       }
     })
     if(!theater_system) throw new NotFoundException('Theater not found')

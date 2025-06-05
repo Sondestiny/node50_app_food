@@ -8,9 +8,9 @@ export class TheaterController {
   constructor(private readonly theaterService: TheaterService) {}
   @Get('LayThongTinHeThongRap/:maHeThongRap')
   findTheaterSystem(
-    @Param('maHeThongRap', ParseIntPipe) theater_id: number
+    @Param('maHeThongRap', ParseIntPipe) theater_systems_id: number
   ) {
-    return this.theaterService.findTheaterSystem(theater_id);
+    return this.theaterService.findTheaterSystem(theater_systems_id);
   }
 
   @Get('LayThongTinCumRapTheoHeThong/:maHeThongRap')
