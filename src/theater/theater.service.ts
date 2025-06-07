@@ -43,27 +43,32 @@ export class TheaterService {
     if(!theater_complex) throw new NotFoundException('Theater not found')
     return theater_complex
   }
-  async getShowtimesByTheaterSystem(theater_systems_id:number,group_id: number ) {
-    const showtimes = this.prisma.theater_systems.findUnique({
-      where: {
-        id: theater_systems_id
-      },
-      include: {
-        Theater_complexs: {
-          include: {
-            Theaters: {
-              include: {
-                ShowTimes: {
-                  include: {
-                    Movies: true
-                  }
-                }
+  async getShowtimesByTheaterSystem(theater_systems_id:number,group_id: string ) {
+    const showtimes = await this.prisma.showTimes.findMany({
+      select: {
+        Movies: {
+          select: {
+            movie_name: true,
+            discription: true,
+            review: true
+          }
+        },
+        Theaters: {
+          select: {
+            theater_name: true,
+            Theater_complexs: {
+              select: {
+                name_theater_complex: true,
+                Theater_systems: true
               }
             }
           }
         }
       }
     })
+    console.log(showtimes)
+    if(!showtimes) throw new NotFoundException('ShowTime not found')
+    return showtimes
   }
 
   async getShowTimeByMovie(movie_id: number) {

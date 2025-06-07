@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { TheaterService } from './theater.service';
 import { CreateTheaterDto } from './dto/create-theater.dto';
 import { UpdateTheaterDto } from './dto/update-theater.dto';
@@ -18,10 +18,10 @@ export class TheaterController {
     return this.theaterService.findTheaterComplexBySystem(theater_systems_id);
   }
 
-  @Get('LayThongTinLichChieuHeThongRap/:maHeThongRap&:maNhom')
+  @Get('LayThongTinLichChieuHeThongRap')
   async getShowtimesByTheaterSystem(
-    @Param('maHeThongRap', ParseIntPipe) theater_systems_id: number,
-    @Param('maNhom', ParseIntPipe) group_id: number
+    @Query('maHeThongRap', ParseIntPipe) theater_systems_id: number,
+    @Query('maNhom') group_id: string
   ) {
   return await this.theaterService.getShowtimesByTheaterSystem(theater_systems_id, group_id)
   }
