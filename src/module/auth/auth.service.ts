@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { CreateUserDto } from 'src/module/user/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
-import { User } from 'src/user/entities/user.entity';
-import { UpdateUserDto } from 'src/user/dto/update-user.dto';
+import { User } from 'src/module/user/entities/user.entity';
+import { UpdateUserDto } from 'src/module/user/dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class AuthService {
@@ -34,18 +34,22 @@ export class AuthService {
         }
     }
 
-    async register(createUserDto):Promise<any> {
+    async register(dto: CreateUserDto):Promise<any> {
         
-        const userExist = await this.prisma.users.findUnique(createUserDto.account);
+        const userExist = await this.prisma.users.findFirst({
+            where: {
+                account: dto.account
+            }
+        });
         if (userExist) throw new UnauthorizedException('Người dùng đã tồn tại')
-        const {PASSWORD, ...dataUser} = createUserDto;
+        const {PASSWORD, ...dataUser} = dto;
         const hashedPassword = await bcrypt.hash(PASSWORD, 10)
-
         const newUser = await this.prisma.users.create({
             data: {
                 ...dataUser,
                 PASSWORD: hashedPassword,
             }
+
         })
         return newUser
     }

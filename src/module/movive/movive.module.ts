@@ -3,7 +3,7 @@ import { MoviveService } from './movive.service';
 import { MoviveController } from './movive.controller';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
-import { BannerModule } from 'src/banner/banner.module';
+import { BannerModule } from 'src/module/banner/banner.module';
 
 @Module({
   imports : [

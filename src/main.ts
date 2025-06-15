@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { jwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { jwtAuthGuard } from './module/auth/guards/jwt-auth.guard';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {

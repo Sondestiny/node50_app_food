@@ -8,7 +8,7 @@ export class jwtAuthGuard extends AuthGuard ('jwt') {
     constructor (
         private reflector: Reflector
     ) {
-        super(0)
+        super()
     }
 
     canActivate(context: ExecutionContext) {

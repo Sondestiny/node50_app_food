@@ -4,9 +4,10 @@ import { ProtectGuard } from './guards/protect.guard';
 import { AuthService } from './auth.service';
 import { jwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public } from 'src/decorator/isPublic.decorator';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { UpdateUserDto } from 'src/user/dto/update-user.dto';
+import { CreateUserDto } from 'src/module/user/dto/create-user.dto';
+import { UpdateUserDto } from 'src/module/user/dto/update-user.dto';
 import { LoginDto } from './dto/login.dto';
+import { registerDto } from './dto/register.dto';
 
 @UseGuards(jwtAuthGuard)
 @Controller('QuanLyNguoiDung')
@@ -30,8 +31,8 @@ export class AuthController {
     @Public()
     @Post('DangKy')
     @UsePipes(new ValidationPipe({whitelist: true}))
-    async register(@Body() createUserDto: CreateUserDto) {
-        return await this.authService.register(createUserDto)
+    async register(@Body() dto: registerDto) {
+        return await this.authService.register(dto)
     }
     @Public()
     @Get('LayDanhSachLoaiNguoiDung')

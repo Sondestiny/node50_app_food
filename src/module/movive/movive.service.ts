@@ -157,7 +157,7 @@ export class MoviveService {
 
     }
   }
-  async getDatail(movie_id:number) {
+  async getDetail(movie_id:number) {
     const movie = await this.prisma.movies.findUnique({
       where: {id: movie_id}
     })

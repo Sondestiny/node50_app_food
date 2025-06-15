@@ -4,8 +4,8 @@ import { CreateMoviveDto } from './dto/create-movive.dto';
 import { UpdateMoviveDto } from './dto/update-movive.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
-import { BannerService } from 'src/banner/banner.service';
-import { jwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { BannerService } from 'src/module/banner/banner.service';
+import { jwtAuthGuard } from 'src/module/auth/guards/jwt-auth.guard';
 @Controller('api/QuanLyPhim')
 export class MoviveController {
   constructor(
@@ -95,7 +95,7 @@ export class MoviveController {
   // Lấy thông tin chi tiết movie
   @Get('LayThongTinPhim/:id')
   getDetail(@Param('id', ParseIntPipe) id: number) {
-    return this.moviveService.getDatail(id);
+    return this.moviveService.getDetail(id);
   }
 
 }

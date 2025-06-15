@@ -3,16 +3,17 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { PrismaService } from './prisma/prisma.service';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
-import { BookingsModule } from './bookings/bookings.module';
-import { MoviveModule } from './movive/movive.module';
+import { AuthModule } from './module/auth/auth.module';
+import { UserModule } from './module/user/user.module';
+import { BookingsModule } from './module/bookings/bookings.module';
+import { MoviveModule } from './module/movive/movive.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
-import { BannerModule } from './banner/banner.module';
-import { TheaterModule } from './theater/theater.module';
+import { BannerModule } from './module/banner/banner.module';
+import { TheaterModule } from './module/theater/theater.module';
+import { ShowtimesModule } from './module/showtimes/showtimes.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UserModule, BookingsModule, MoviveModule, CloudinaryModule, BannerModule, TheaterModule],
+  imports: [PrismaModule, AuthModule, UserModule, BookingsModule, MoviveModule, CloudinaryModule, BannerModule, TheaterModule, ShowtimesModule],
   controllers: [AppController],
   providers: [
     AppService, 
