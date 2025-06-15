@@ -49,13 +49,13 @@ export class MoviveController {
   @UseInterceptors(FileInterceptor('image'))
   async create(
     @UploadedFile() file: Express.Multer.File,
-    @Body() createMoviveDto: CreateMoviveDto
+    @Body() dto: CreateMoviveDto
   ) {
     if(!file) throw new Error('Không có file ảnh hoặc trailer để tạo movie')
     const result = await this.cloudinary.uploadImage(file);
-    createMoviveDto.image = result.secure_url
+    dto.image = result.secure_url
 
-    return await this.moviveService.create(createMoviveDto);
+    return await this.moviveService.create(dto);
   }
   @UseGuards(jwtAuthGuard)
   @Post('CapNhatPhimUpload/:id')

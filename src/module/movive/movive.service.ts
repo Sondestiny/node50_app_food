@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMoviveDto } from './dto/create-movive.dto';
 import { UpdateMoviveDto } from './dto/update-movive.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -36,7 +36,16 @@ export class MoviveService {
       this.prisma.movies.findMany({
       skip: skip,
       take: limit,
-      where: where
+      where: where,
+      select: {
+        id: true,
+        movie_name: true,
+        discription: true,
+        premiere_date: true,
+        image: true,
+        is_showing: true,
+        coming_soon: true
+      }
       }),
       this.prisma.movies.count({where: where})
     ])
@@ -65,20 +74,31 @@ export class MoviveService {
       this.prisma.movies.findMany({
       skip: skip,
       take: limit,
-      where: where
+      where: where,
+      select: {
+        id: true,
+        movie_name: true,
+        discription: true,
+        premiere_date: true,
+        image: true,
+        is_showing: true,
+        coming_soon: true
+      }
       }),
       this.prisma.movies.count({where: where})
     ])
     if (!data) throw new NotFoundException('Không tìm thấy tên phim với ngày chiếu phù hợp')
     return {data, total, page, lastPage: Math.ceil(total / limit)}
   }
-
-  findOne(id: number) {
-    return `This action returns a #${id} movive`;
-  }
-  async create(createMoviveDto) {
+  async create(dto: CreateMoviveDto) {
+    const movie = await this.prisma.movies.findFirst({
+      where: {
+        movie_name: dto.movie_name
+      }
+    })
+    if(movie) throw new BadRequestException('Movie đã tồn tại')
     return await this.prisma.movies.create({
-      data: createMoviveDto
+      data: dto
     })
   }
 
@@ -153,7 +173,16 @@ export class MoviveService {
   }
   async getDetail(movie_id:number) {
     const movie = await this.prisma.movies.findUnique({
-      where: {id: movie_id}
+      where: {id: movie_id},
+      select: {
+        id: true,
+        movie_name: true,
+        discription: true,
+        premiere_date: true,
+        image: true,
+        is_showing: true,
+        coming_soon: true
+      }
     })
     if(!movie) throw new NotFoundException('movie not found');
     return movie
