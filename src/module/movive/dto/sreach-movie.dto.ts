@@ -22,3 +22,19 @@ export class SearchByDateDto {
   @Min(1)
   limit?: number = 10;
 }
+
+export class SearchByPageDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+  @Type(() => Number)
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  page?: number = 1;
+  @Type(() => Number)
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  limit?: number = 10;
+}

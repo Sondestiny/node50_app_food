@@ -3,7 +3,7 @@ import { CreateMoviveDto } from './dto/create-movive.dto';
 import { UpdateMoviveDto } from './dto/update-movive.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Timestamp } from 'rxjs';
-import { SearchByDateDto } from './dto/sreach-movie.dto';
+import { SearchByDateDto, SearchByPageDto } from './dto/sreach-movie.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
@@ -12,6 +12,7 @@ export class MoviveService {
     private prisma: PrismaService,
     private cloudinary: CloudinaryService
   ){}
+  // lấy danh sách phim theo tên phim
   async findAll(movie_name_sreach) {
     const movie_list = await this.prisma.movies.findMany({
       where: {
@@ -21,14 +22,16 @@ export class MoviveService {
     if (!movie_list) throw new NotFoundException('Không tìm thấy tên phim phù hợp')
     return movie_list
   }
-  async findAllWithPage(movie_name_sreach, page:number, limit:number) {
+  // lấy danh sách phim theo tên phim, phân trang
+  async findAllWithPage(dto: SearchByPageDto) {
+    const {title, page =1, limit = 10} = dto;
     const skip = (page - 1) * limit;
-    const where = {movie_name: {contains: movie_name_sreach}}
-    const movie_list = await this.prisma.movies.findMany({
-      skip: skip,
-      take: limit,
-      where: where
-    })
+    const where = {
+      movie_name: { 
+        contains: title, 
+        mode: 'insensitive' 
+      }
+    }
     const [data, total] = await Promise.all([
       this.prisma.movies.findMany({
       skip: skip,
@@ -37,45 +40,36 @@ export class MoviveService {
       }),
       this.prisma.movies.count({where: where})
     ])
-    if (!movie_list) throw new NotFoundException('Không tìm thấy tên phim phù hợp')
+    if (!data) throw new NotFoundException('Không tìm thấy tên phim phù hợp')
     return {data, total, page, lastPage: Math.ceil(total / limit)}
   }
+  // lấy danh sách phim theo tên phim, có phân trang, có lọc theo ngày
   async findAllWithPageAndDay(dto: SearchByDateDto) {
     const {title, startDate, endDate, page = 1, limit = 10} = dto
     const skip = (page - 1) * limit;
-    const where :any = {
-      ...(title && {
-        movie_name: { contains: title, mode: 'insensitive' },
-      }),
+    const where = {
+      movie_name: { 
+        contains: title, 
+        mode: 'insensitive' 
+      },
       show_time: {
         some: {
           date_release: {
-        ...(startDate && { gte: new Date(startDate) }),
-        ...(endDate && { lte: new Date(endDate) }),
-      },
+            ...(startDate && { gte: new Date(startDate) }),
+            ...(endDate && { lte: new Date(endDate) }),
+          },
         }
       }
     }
-    const data = await this.prisma.movies.findMany({
+    const [data, total] = await Promise.all([
+      this.prisma.movies.findMany({
       skip: skip,
       take: limit,
-      orderBy: { movie_name: 'asc' },
-      where: where,
-      include: {
-        ShowTimes: {
-          where: {
-            date_release: {
-              ...(startDate && { gte: new Date(startDate) }),
-              ...(endDate && { lte: new Date(endDate) }),
-            },
-          },
-          select: { date_release: true },
-        }
-      }
-    })
-    const total = await this.prisma.movies.count({where: where})
-  
-    if (!data) throw new NotFoundException('Không tìm thấy tên phim phù hợp')
+      where: where
+      }),
+      this.prisma.movies.count({where: where})
+    ])
+    if (!data) throw new NotFoundException('Không tìm thấy tên phim với ngày chiếu phù hợp')
     return {data, total, page, lastPage: Math.ceil(total / limit)}
   }
 

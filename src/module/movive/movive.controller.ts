@@ -18,24 +18,24 @@ export class MoviveController {
     return await this.bannerService.getAll();
   }
   @Get('LayDanhSachPhim')
-  findAll(
+  async findAll(
     @Query('maNhom') Group_id :string,
     @Query('tenPhim') movie_name_sreach :string,
     
   ) {
-    return this.moviveService.findAll(movie_name_sreach);
+    return await this.moviveService.findAll(movie_name_sreach);
   }
   @Get('LayDanhSachPhimPhanTrang')
-  findAllWithPage(
+  async findAllWithPage(
     @Query('maNhom') Group_id :string,
-    @Query('tenPhim') movie_name_sreach :string,
-    @Query('soTrang') page :string = '1',
-    @Query('soPhanTuTrenTrang') limit :string = '10',
+    @Query('tenPhim') title :string,
+    @Query('soTrang') page :number = 1,
+    @Query('soPhanTuTrenTrang') limit :number = 10,
   ) {
-    return this.moviveService.findAllWithPage(movie_name_sreach, Number(page), Number(limit));
+    return await this.moviveService.findAllWithPage({title, page, limit});
   }
   @Get('LayDanhSachPhimTheoNgay')
-  findAllWithPageAndDay(
+  async findAllWithPageAndDay(
     @Query('maNhom') Group_id :string,
     @Query('tenPhim') title :string = '', 
     @Query('soTrang') page :number = 1,
@@ -43,7 +43,7 @@ export class MoviveController {
     @Query('tuNgay') startDate :string = '',
     @Query('denNgay') endDate :string = '',
   ) {
-    return this.moviveService.findAllWithPageAndDay({title, page, limit, startDate, endDate});
+    return await this.moviveService.findAllWithPageAndDay({title, page, limit, startDate, endDate});
   }
   @Post('ThemPhimUploadHinh')
   @UseInterceptors(FileInterceptor('image'))
@@ -55,7 +55,7 @@ export class MoviveController {
     const result = await this.cloudinary.uploadImage(file);
     createMoviveDto.image = result.secure_url
 
-    return this.moviveService.create(createMoviveDto);
+    return await this.moviveService.create(createMoviveDto);
   }
   @UseGuards(jwtAuthGuard)
   @Post('CapNhatPhimUpload/:id')
@@ -73,29 +73,29 @@ export class MoviveController {
       video?: Express.Multer.File[];
     },
   ){
-    await this.moviveService.updateMovieVideo(id, dto, files)
+    return await this.moviveService.updateMovieVideo(id, dto, files)
   }
   @Get()
 
   // Xóa movie
   @UseGuards(jwtAuthGuard)
   @Delete('XP/:id')
-  deleteMovie(
+  async deleteMovie(
     @Param('id', ParseIntPipe) id: number
   ) {
-    return this.moviveService.deleteMovie(+id);
+    return await this.moviveService.deleteMovie(+id);
   }
   @UseGuards(jwtAuthGuard)
   @Delete('XoaPhim/:id')
-  remove(
+  async remove(
     @Param('id', ParseIntPipe) id: number
   ) {
-    return this.moviveService.deleteMovie(+id);
+    return await this.moviveService.deleteMovie(+id);
   }
   // Lấy thông tin chi tiết movie
   @Get('LayThongTinPhim/:id')
-  getDetail(@Param('id', ParseIntPipe) id: number) {
-    return this.moviveService.getDetail(id);
+  async getDetail(@Param('id', ParseIntPipe) id: number) {
+    return await this.moviveService.getDetail(id);
   }
 
 }

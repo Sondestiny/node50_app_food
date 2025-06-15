@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { flatten, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTheaterDto } from './dto/create-theater.dto';
 import { UpdateTheaterDto } from './dto/update-theater.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -10,25 +10,30 @@ export class TheaterService {
     private prisma: PrismaService,
     private showTime: ShowtimesService,
   ) {}
-  async findTheaterSystem(id: number) {
-    const theater_system =  this.prisma.theater_systems.findUnique({
+  async getTheaterSystemÌno(id: number) {
+    const theater_system =  await this.prisma.theater_systems.findUnique({
       where: {
-        id
+        id,
+        is_deleted: false
       },
       select: {
+        logo: true,
         name_theater_system: true,
-        logo: true
       }
     })
+
     if(!theater_system) throw new NotFoundException('Theater not found')
     return theater_system
   }
   async findTheaterComplexBySystem(theater_systems_id:number){
     const theater_complex =  this.prisma.theater_complexs.findMany({
       where: {
-        theater_system_id: theater_systems_id
+        theater_system_id: theater_systems_id,
+        is_deleted: false
       },
       select: {
+        name_theater_complex: true,
+        address: true,
         Theaters: {
           select: {
             id: true,

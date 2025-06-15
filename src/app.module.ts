@@ -11,9 +11,23 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { BannerModule } from './module/banner/banner.module';
 import { TheaterModule } from './module/theater/theater.module';
 import { ShowtimesModule } from './module/showtimes/showtimes.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UserModule, BookingsModule, MoviveModule, CloudinaryModule, BannerModule, TheaterModule, ShowtimesModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    PrismaModule, 
+    AuthModule, 
+    UserModule, 
+    BookingsModule, 
+    MoviveModule, 
+    CloudinaryModule, 
+    BannerModule, 
+    TheaterModule, 
+    ShowtimesModule
+  ],
   controllers: [AppController],
   providers: [
     AppService, 

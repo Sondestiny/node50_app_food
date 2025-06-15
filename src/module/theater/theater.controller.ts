@@ -7,15 +7,15 @@ import { UpdateTheaterDto } from './dto/update-theater.dto';
 export class TheaterController {
   constructor(private readonly theaterService: TheaterService) {}
   @Get('LayThongTinHeThongRap/:maHeThongRap')
-  findTheaterSystem(
-    @Param('maHeThongRap', ParseIntPipe) theater_systems_id: number
+  async findTheaterSystem(
+    @Query('maHeThongRap', ParseIntPipe) theater_systems_id: number,
   ) {
-    return this.theaterService.findTheaterSystem(theater_systems_id);
+    return await this.theaterService.getTheaterSystemÌno(theater_systems_id);
   }
 
   @Get('LayThongTinCumRapTheoHeThong/:maHeThongRap')
-  findTheaterComplexBySystem(@Param('maHeThongRap', ParseIntPipe) theater_systems_id: number) {
-    return this.theaterService.findTheaterComplexBySystem(theater_systems_id);
+  async findTheaterComplexBySystem(@Param('maHeThongRap', ParseIntPipe) theater_systems_id: number) {
+    return await this.theaterService.findTheaterComplexBySystem(theater_systems_id);
   }
 
   @Get('LayThongTinLichChieuHeThongRap')
