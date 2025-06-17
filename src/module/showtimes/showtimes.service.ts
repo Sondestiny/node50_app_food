@@ -85,7 +85,6 @@ export class ShowtimesService {
             if (!grouped[system.id]) {
                 grouped[system.id] = {
                     theater_system: {
-                        id: system.id,
                         name_theater_system: system.name_theater_system,
                         Theater_complexs: {}
                     }
@@ -93,7 +92,6 @@ export class ShowtimesService {
             }
             if(!grouped[system.id].theater_system.Theater_complexs[complexs.id]) {
                 grouped[system.id].theater_system.Theater_complexs[complexs.id] = {
-                    id: complexs.id,
                     name_theater_complex: complexs.name_theater_complex,
                     address: complexs.address,
                     theater: {}
@@ -101,19 +99,11 @@ export class ShowtimesService {
             }
             if(!grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id]) {
                 grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id] = {
-                    id: theater.id,
                     theater_name: theater.theater_name,
-                    movie: {}
-                }
-            }
-            if(!grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id].movie[movie.id]) {
-                grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id].movie[movie.id] = {
-                    id: movie_id,
-                    movie_name: movie.movie_name,
                     showTimes: []
                 }
             }
-            grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id].movie[movie.id].showTimes.push({
+            grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id].showTimes.push({
                 date_release: show.date_release,
                 price: show.price
             })
@@ -183,7 +173,6 @@ export class ShowtimesService {
             if (!grouped[system.id]) {
                 grouped[system.id] = {
                     theater_system: {
-                        id: system.id,
                         name_theater_system: system.name_theater_system,
                         Theater_complexs: {}
                     }
@@ -191,7 +180,6 @@ export class ShowtimesService {
             }
             if(!grouped[system.id].theater_system.Theater_complexs[complexs.id]) {
                 grouped[system.id].theater_system.Theater_complexs[complexs.id] = {
-                    id: complexs.id,
                     name_theater_complex: complexs.name_theater_complex,
                     address: complexs.address,
                     theater: {}
@@ -199,19 +187,12 @@ export class ShowtimesService {
             }
             if(!grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id]) {
                 grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id] = {
-                    id: theater.id,
                     theater_name: theater.theater_name,
-                    movie: {}
-                }
-            }
-            if(!grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id].movie[movie.id]) {
-                grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id].movie[movie.id] = {
-                    id: movie.id,
-                    movie_name: movie.movie_name,
                     showTimes: []
                 }
             }
-            grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id].movie[movie.id].showTimes.push({
+            grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id].showTimes.push({
+                movie: movie.movie_name,
                 date_release: show.date_release,
                 price: show.price
             })

@@ -8,7 +8,7 @@ import { ticketValidationPipe } from 'src/common/pipes/ticket-validation-pipe';
 @Module({
   imports: [PrismaModule],
   controllers: [BookingsController],
-  providers: [BookingsService],
+  providers: [BookingsService, PrismaService, ticketValidationPipe],
   exports: [BookingsService, PrismaService, ticketValidationPipe]
 })
 export class BookingsModule {}
