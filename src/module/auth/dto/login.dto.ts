@@ -1,10 +1,9 @@
 import { Type } from 'class-transformer';
-import { IsEmail, IsNumber, MinLength } from 'class-validator';
+import { IsEmail, IsNumber, IsString, MinLength } from 'class-validator';
 
 export class LoginDto {
-  @IsNumber()
-  @Type( ()=>Number )
-  account: number;
+  @IsString()
+  account: string;
 
   @MinLength(6)
   password: string;

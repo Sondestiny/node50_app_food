@@ -19,6 +19,11 @@ export class TheaterService {
       select: {
         logo: true,
         name_theater_system: true,
+        Theater_complexs: {
+          include: {
+            Theaters: true
+          }
+        }
       }
     })
 

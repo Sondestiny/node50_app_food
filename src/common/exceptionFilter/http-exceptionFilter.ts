@@ -4,8 +4,8 @@ import { response } from "express";
 export class httpExceptionFilter implements ExceptionFilter {
     catch(exception: any, host: ArgumentsHost) {
         const http = host.switchToHttp();
-        const Request = http.getRequest<Request>();
-        const Response = http.getResponse<Response>();
+        const request = http.getRequest();
+        const response = http.getResponse();
         // khởi tạo lỗi mặc định
         let status = HttpStatus.INTERNAL_SERVER_ERROR;
         let message = 'Internal server error';
@@ -29,6 +29,8 @@ export class httpExceptionFilter implements ExceptionFilter {
         }
         response.status(status).json({
             statusCode: status,
+            timestamp: new Date().toISOString(),
+            path: request.url,
             message,
             ...{errors},
             data: null

@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/module/user/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/module/user/entities/user.entity';
 import { UpdateUserDto } from 'src/module/user/dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { registerDto } from './dto/register.dto';
 @Injectable()
 export class AuthService {
     constructor(
@@ -20,21 +21,22 @@ export class AuthService {
                 is_deleted: true
             }
         })
-        if(!user) throw new NotFoundException('Không tìm thấy người dùng')
+        if(!user) throw new BadRequestException('Không tìm thấy người dùng')
         if(user.is_deleted == true) throw new NotFoundException('Người dùng đã bị xóa khỏi hệ thống')
         const CorrectPassword = await bcrypt.compare(password, user.PASSWORD)
         if (!CorrectPassword) throw new UnauthorizedException('Thông tin đăng nhập không chính xác')
         // Lọc field PASSWORD để trả kết quả về
         return {account, email:user.email}
     }
-    async login (account, email):Promise<any> {
-        const payload = {account, email}
+    async login (account:string):Promise<any> {
+        console.log(account);
+        const payload = {account}
         return {
             access_token: await this.jwtService.signAsync(payload)
         }
     }
 
-    async register(dto: CreateUserDto):Promise<any> {
+    async register(dto: registerDto):Promise<any> {
         
         const userExist = await this.prisma.users.findFirst({
             where: {
@@ -48,8 +50,7 @@ export class AuthService {
             data: {
                 ...dataUser,
                 PASSWORD: hashedPassword,
-            }
-
+            },
         })
         return newUser
     }
@@ -58,67 +59,53 @@ export class AuthService {
             distinct: 'TypeUser',
             select: {'TypeUser': true}
         })
-        return listTypeUser
+        if (!listTypeUser) throw new BadRequestException('Không tìm thấy loại người dùng');
+        const result :Array<string> = [];
+        for(const typeUser of listTypeUser) {
+            result.push(typeUser.TypeUser ? typeUser.TypeUser : '')
+        }
+        
+        return result;
     }
 
     async getUserList(
-        typeUser:string, 
+        group:string, 
         sreach:string
     ) : Promise<User[]> {
-        const where = {
-                typeUser: typeUser,
-                fullname: {contains: sreach, mode: 'insensitive'}
-            }
         return this.prisma.users.findMany({
-            where: where,
-            select: {
-            fullname: true,
-            email: true,
-            created_at: true,
-            // loại bỏ password vì không nên trả về
-            },
+            where: {
+                fullname: {
+                    contains: sreach,
+                }, 
+                }
     })}
 
     async getUserListPaginated( 
-        typeUser:string, 
+        group:string, 
         sreach: string , 
         page: number, 
         limit: number 
     ): Promise<any>{
         const skip = (page - 1) * limit;
-        const where = sreach ? {
-            typeUser: typeUser,
-            fullname: {contains: sreach, mode: 'insensitive'}
-        } : {}
-
         const [data, total] = await Promise.all([
             this.prisma.users.findMany({
                         skip,
                         take: limit,
-                        where: where,
-                        select: {
-                            fullname: true,
-                            email: true,
-                            created_at: true,
-                        },
+                        where: {fullname: {contains: sreach}},
             }),
             this.prisma.users.count()
         ])
-        return {data, total, page, lastPage: Math.ceil(total / limit)}
+        const result = {
+            user:data, 
+            total, 
+            page, 
+            lastPage: Math.ceil(total / limit)
+        }
+        return result
     }
     async sreachUser(typeUser, sreach): Promise<User> {
-        const where = {
-            TypeUser: typeUser,    
-            fullname: {contains: sreach}
-            }
         const user = await this.prisma.users.findFirst({
-            where: where,
-            select: {
-            fullname: true,
-            email: true,
-            created_at: true,
-            // loại bỏ password vì không nên trả về
-            },
+            where: {fullname: {contains: sreach}}
         })
         if(!user) throw new Error('Không tìm thấy người dùng')
         return user
@@ -126,8 +113,7 @@ export class AuthService {
     async sreachUserOfPage(typeUser, sreach, page, limit) {
         const skip = (page - 1) * limit;
         const where = sreach ? {
-            typeUser: typeUser,
-            fullname: {contains: sreach, mode: 'insensitive'}
+            fullname: {contains: sreach}
         } : {}
 
         const [data, total] = await Promise.all([
@@ -135,22 +121,20 @@ export class AuthService {
                         skip,
                         take: limit,
                         where: where,
-                        select: {
-                            fullname: true,
-                            email: true,
-                            created_at: true,
-                        },
             }),
             this.prisma.users.count({where: where})
         ])
-        return {data, total, page, lastPage: Math.ceil(total / limit)}
+        const result = {
+            user:data, 
+            total, 
+            page, 
+            lastPage: Math.ceil(total / limit)
+        }
+        return result
     }
-    async getUserAccount(account) {
+    async getUserAccount(account:number) {
     return this.prisma.users.findUnique({
     where: {account},
-    select: {
-      account: true
-    },
   });
     }
     async getUserInfo (account) {
@@ -175,7 +159,6 @@ export class AuthService {
             PASSWORD,
             email, 
             phone,
-            TypeUser,
             fullname,
              } = createUserDto
         const existingUser = await this.prisma.users.findFirst({ where: { email } });
@@ -189,7 +172,6 @@ export class AuthService {
             PASSWORD: hashedPassword,
             email, 
             phone,
-            TypeUser,
             fullname,
             },
             select: {

@@ -7,15 +7,17 @@ import { setResponseMessage } from 'src/decorator/response-message.decorator';
 @Controller('QuanLyRap')
 export class TheaterController {
   constructor(private readonly theaterService: TheaterService) {}
-  @Get('LayThongTinHeThongRap/:maHeThongRap')
+  @Get('LayThongTinHeThongRap')
   async findTheaterSystem(
     @Query('maHeThongRap', ParseIntPipe) theater_systems_id: number,
   ) {
     return await this.theaterService.getTheaterSystemÌno(theater_systems_id);
   }
-  @Get('LayThongTinCumRapTheoHeThong/:maHeThongRap')
+  @Get('LayThongTinCumRapTheoHeThong')
   @setResponseMessage('Lấy thông tin lịch chiếu cụm rạp theo mã hệ thống rạp thành công')
-  async findTheaterComplexBySystem(@Param('maHeThongRap', ParseIntPipe) theater_systems_id: number) {
+  async findTheaterComplexBySystem(
+    @Query('maHeThongRap', ParseIntPipe) theater_systems_id: number,
+  ) {
     return await this.theaterService.findTheaterComplexBySystem(theater_systems_id);
   }
 

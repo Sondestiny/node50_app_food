@@ -12,21 +12,9 @@ export class UserService {
     })
   }
 
-  findAll() {
-    return `This action returns all user`;
-  }
-
   async findOne(email: string): Promise<any> {
     return await this.prisma.users.findFirst({
       where: {email}
     });
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
   }
 }

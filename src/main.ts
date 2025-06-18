@@ -9,7 +9,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const reflector = app.get(Reflector);
   
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true
+  }));
   app.useGlobalFilters(new httpExceptionFilter());
   app.useGlobalInterceptors(new successResponseInterceptor(reflector))
   await app.listen(process.env.PORT ?? 3000);

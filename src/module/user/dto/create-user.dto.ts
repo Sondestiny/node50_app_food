@@ -9,14 +9,10 @@ account: number;
 @IsNotEmpty()
 @MinLength(6)
 PASSWORD: string;
-
 @IsEmail()
 email: string;
 @IsString()
 phone: string;
-
-TypeUser: string;
-
 @IsOptional()
 fullname: string;
 }

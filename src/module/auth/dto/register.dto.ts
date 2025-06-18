@@ -10,13 +10,17 @@ account: number;
 @MinLength(6)
 PASSWORD: string;
 
+@IsNotEmpty()
+@IsString()
 @IsEmail()
 email: string;
+
+@IsNotEmpty()
 @IsString()
 phone: string;
 
-TypeUser: string;
-
+@IsString()
+@IsNotEmpty()
 @IsOptional()
 fullname: string;
 }

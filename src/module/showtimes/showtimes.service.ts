@@ -64,51 +64,29 @@ export class ShowtimesService {
             select: {
                 id: true,
                 date_release: true,
+                theater_id: true,
                 price: true,
-                Theaters: {
-                    include: {
-                        Theater_complexs: {
-                            include: {
-                                Theater_systems: true
-                            }
-                        }
+                Movies: {
+                    select: {
+                        movie_name: true
                     }
-                }
+                },
+                Theaters: true,
             }
+            
             })
-        
-        const grouped: Record<number, any> = {};
-        for (const show of showTimes) {
-            const system = show.Theaters.Theater_complexs.Theater_systems;
-            const complexs = show.Theaters.Theater_complexs;
-            const theater = show.Theaters;
-            if (!grouped[system.id]) {
-                grouped[system.id] = {
-                    theater_system: {
-                        name_theater_system: system.name_theater_system,
-                        Theater_complexs: {}
-                    }
-                }
-            }
-            if(!grouped[system.id].theater_system.Theater_complexs[complexs.id]) {
-                grouped[system.id].theater_system.Theater_complexs[complexs.id] = {
-                    name_theater_complex: complexs.name_theater_complex,
-                    address: complexs.address,
-                    theater: {}
-                }
-            }
-            if(!grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id]) {
-                grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id] = {
-                    theater_name: theater.theater_name,
-                    showTimes: []
-                }
-            }
-            grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id].showTimes.push({
-                date_release: show.date_release,
-                price: show.price
+        let result: Array<any> = [];
+        for ( const showtime of showTimes ) {
+            result.push({
+                movie_id: movie_id,
+                date_release: showtime.date_release,
+                theater_id: true,
+                price: showtime.price,
+                movie_name: showtime.Movies.movie_name,
+                theater_name: showtime.Theaters.theater_name
+
             })
         }
-        const result = Object.values(grouped)
         return result;
     }
     // lấy danh sách thông tin lịch chiếu phim theo mã hệ thống rạp chiếu phim theater_system_id
@@ -133,71 +111,40 @@ export class ShowtimesService {
                 }
         }
         
-        const showTimes = await this.prisma.showTimes.findMany({
+        const showTimes  = await this.prisma.showTimes.findMany({
             where: filters,
             select: {
+                id: true,
                 date_release: true,
+                theater_id: true,
                 price: true,
                 Movies: {
                     select: {
                         id: true,
-                        movie_name: true,
-                        discription: true,
-                        image: true,
-                        premiere_date: true,
+                        movie_name: true
                     }
                 },
-                Theaters: {
-                    include: {
-                        Theater_complexs: {
-                            include: {
-                                Theater_systems: true
-                            }
-                        }
-                    }
-                }
-              },
+                Theaters: true,
+            },
             orderBy: {
-                date_release: 'asc',
+                date_release: 'asc'
             }
             })
-        if(!showTimes) throw new NotFoundException('ShowTime not found')
+            let result: Array<any> = [];
+        for ( const showtime of showTimes ) {
+            result.push({
+                movie_id: showtime.Movies.id,
+                date_release: showtime.date_release,
+                theater_id: true,
+                price: showtime.price,
+                movie_name: showtime.Movies.movie_name,
+                theater_name: showtime.Theaters.theater_name
 
-        const grouped: Record<number, any> = {};
-        for (const show of showTimes) {
-            const system = show.Theaters.Theater_complexs.Theater_systems;
-            const complexs = show.Theaters.Theater_complexs;
-            const theater = show.Theaters;
-            const movie = show.Movies;
-
-            if (!grouped[system.id]) {
-                grouped[system.id] = {
-                    theater_system: {
-                        name_theater_system: system.name_theater_system,
-                        Theater_complexs: {}
-                    }
-                }
-            }
-            if(!grouped[system.id].theater_system.Theater_complexs[complexs.id]) {
-                grouped[system.id].theater_system.Theater_complexs[complexs.id] = {
-                    name_theater_complex: complexs.name_theater_complex,
-                    address: complexs.address,
-                    theater: {}
-                }
-            }
-            if(!grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id]) {
-                grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id] = {
-                    theater_name: theater.theater_name,
-                    showTimes: []
-                }
-            }
-            grouped[system.id].theater_system.Theater_complexs[complexs.id].theater[theater.id].showTimes.push({
-                movie: movie.movie_name,
-                date_release: show.date_release,
-                price: show.price
             })
         }
-        const result = Object.values(grouped)
         return result;
+        if(!showTimes) throw new NotFoundException('ShowTime not found')
+
+        
     }
 }
