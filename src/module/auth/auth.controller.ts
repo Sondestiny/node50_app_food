@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, Req, Request, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, Req, Request, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ProtectGuard } from './guards/protect.guard';
 import { AuthService } from './auth.service';
@@ -9,8 +9,12 @@ import { UpdateUserDto } from 'src/module/user/dto/update-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { registerDto } from './dto/register.dto';
 import { group } from 'console';
+import { TransformResponseInterceptor } from 'src/common/interceptors/transformResponse.intercreptor';
+import { UseDto } from 'src/decorator/use-dto.decorator';
+import { userResponseDto } from './dto/User-response.dto';
 
 @UseGuards(jwtAuthGuard)
+@UseInterceptors(TransformResponseInterceptor)
 @Controller('QuanLyNguoiDung')
 export class AuthController {
     constructor(
@@ -31,6 +35,7 @@ export class AuthController {
         return await this.authService.register(dto)
     }
     @Public()
+    @UseDto(userResponseDto)
     @Get('LayDanhSachLoaiNguoiDung')
     async getTypeUserList() {
         return await this.authService.getTypeUserList()
