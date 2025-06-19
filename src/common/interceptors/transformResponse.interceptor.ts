@@ -9,38 +9,36 @@ import { userResponseDto } from "src/module/auth/dto/User-response.dto";
 export class TransformResponseInterceptor<T>
   implements NestInterceptor<T, any>
 {
+  constructor (
+    private readonly reflector: Reflector
+  ) {}
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const classType = this.reflector.get(
+          DTO_TYPE,
+          context.getHandler(),
+        );
     return next.handle().pipe(
       map((data) => {
+        let transformedData = data;
         // Nếu controller trả về đã là instance DTO thì giữ nguyên
-        // const classType = Reflect.getMetadata(
-        //     DTO_TYPE,
-        //     context.getHandler(),
-        //     );
-        const classType = userResponseDto;
-        console.log(classType)
-        console.log(data)
+        
         if (classType) {
-          // nếu data là dạng dữ liệu array
-          // if(Array.isArray(data)) {
-          //   for(const item of data) {
-          //     if (classType) {
-          //       const transformed = plainToInstance(classType, data, {
-          //         excludeExtraneousValues: true,
-          //       });
-
-          //       return instanceToPlain(transformed); // trả về plain object đã ẩn field
-          //     }
-          //   }
-          // }
-          const transformed = plainToInstance(classType, data, {
+          //nếu data là dạng dữ liệu array
+          if(Array.isArray(data)) {
+            transformedData = data.map((item)=> {
+              const transformed = plainToInstance(classType, item, {
+                excludeExtraneousValues: true
+              })
+              return instanceToPlain(transformed);
+            })
+          } else if ( classType && typeof data === "object" ) {
+            transformedData = instanceToPlain(
+              plainToInstance(classType, data, {
                 excludeExtraneousValues: true,
-              });
-
-              return instanceToPlain(transformed); // trả về plain object đã ẩn field
-            
+              }))
+          }
         }
-        return data;
+        return transformedData;
       }),
     );
   }

@@ -29,7 +29,6 @@ export class AuthService {
         return {account, email:user.email}
     }
     async login (account:string):Promise<any> {
-        console.log(account);
         const payload = {account}
         return {
             access_token: await this.jwtService.signAsync(payload)
@@ -133,22 +132,20 @@ export class AuthService {
         return result
     }
     async getUserAccount(account:number) {
-    return this.prisma.users.findUnique({
-    where: {account},
-  });
+        return this.prisma.users.findUnique({
+            where: {account},
+        });
     }
     async getUserInfo (account) {
         const userInfo = await this.prisma.users.findUnique({
-        where: {
-            account
-        },
-        select: {
-        account: true,
-        fullname: true,
-        email: true,
-        phone: true,
-        TypeUser: true
-        }
+            where: {account},
+            select: {
+            account: true,
+            fullname: true,
+            email: true,
+            phone: true,
+            TypeUser: true
+            }
         })
         if (!userInfo) throw new UnauthorizedException('Không tìm thấy thông tin người dùng')
         return userInfo
@@ -160,6 +157,7 @@ export class AuthService {
             email, 
             phone,
             fullname,
+            TypeUser,
              } = createUserDto
         const existingUser = await this.prisma.users.findFirst({ where: { email } });
         if (existingUser) {
@@ -173,15 +171,9 @@ export class AuthService {
             email, 
             phone,
             fullname,
-            },
-            select: {
-            account: true,
-            fullname: true,
-            email: true,
-            created_at: true,
-            },
+            TypeUser
+            }
         });
-
         return user;
     }
     async updatedUser (updateUserDto: UpdateUserDto, account:number) {
@@ -221,6 +213,7 @@ export class AuthService {
             data: {
                 is_deleted: true,
                 updated_at: new Date(), // ✅ soft delete
+                
             },
             select: {
             fullname: true,

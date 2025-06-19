@@ -9,10 +9,20 @@ account: number;
 @IsNotEmpty()
 @MinLength(6)
 PASSWORD: string;
+
 @IsEmail()
 email: string;
+
 @IsString()
 phone: string;
+
+@IsString()
+group: string;
+
+@IsString()
+TypeUser: string;
+
 @IsOptional()
+@IsString()
 fullname: string;
 }

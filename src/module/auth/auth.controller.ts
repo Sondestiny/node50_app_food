@@ -35,7 +35,7 @@ export class AuthController {
         return await this.authService.register(dto)
     }
     @Public()
-    @setUseDto(123)
+    @setUseDto(userResponseDto)
     @Get('LayDanhSachLoaiNguoiDung')
     async getTypeUserList() {
         return await this.authService.getTypeUserList()
@@ -76,13 +76,13 @@ export class AuthController {
     ) {
         return this.authService.sreachUserOfPage(group, sreach, Number(page), Number(limit))
     }
-
+    @setUseDto(userResponseDto)
     @Post('ThongTinTaiKhoan')
     getUserAccount(@Request() req) {
-        console.log(req.user);
         const account = req.user.account
         return this.authService.getUserAccount(+account);
     }
+    @setUseDto(userResponseDto)
     @Post('LayThongTinNguoiDung')
     getUserProfile(
         @Query('taiKhoan') account: string = '',
@@ -90,13 +90,14 @@ export class AuthController {
         {
         return this.authService.getUserInfo(account);
     }
+    @setUseDto(userResponseDto)
     @Post('ThemNguoiDung')
     createUser(
         @Body() createUserDto : CreateUserDto
     ) {
         return this.authService.createUser(createUserDto);
     }
-
+    @setUseDto(userResponseDto)
     @Put('CapNhatThongTinNguoiDung')
     updateUserByPut(
         @Request() req,
@@ -105,10 +106,14 @@ export class AuthController {
         const account= req.user.account
         return this.authService.updatedUser(updateUserDto, Number(account));
     }
-
+    @setUseDto(userResponseDto)
     @Post('CapNhatThongTinNguoiDung')
-    updateUserByPost(@Request() req) {
-        return 'Cập nhật thông tin Người Dùng';
+    updateUserByPost(
+        @Request() req,
+        @Body() updateUserDto : UpdateUserDto
+    ) {
+        const account= req.user.account
+        return this.authService.updatedUser(updateUserDto, Number(account));
     }
 
     @Delete('XoaNguoiDung')
@@ -116,7 +121,6 @@ export class AuthController {
         @Request() req,
         @Query('taiKhoan') account: string 
     ) {
-        const user_id = req.user.id
         return this.authService.deleteUser(Number(account))
     }
 }
