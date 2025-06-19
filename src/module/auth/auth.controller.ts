@@ -9,8 +9,8 @@ import { UpdateUserDto } from 'src/module/user/dto/update-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { registerDto } from './dto/register.dto';
 import { group } from 'console';
-import { TransformResponseInterceptor } from 'src/common/interceptors/transformResponse.intercreptor';
-import { UseDto } from 'src/decorator/use-dto.decorator';
+import { TransformResponseInterceptor } from 'src/common/interceptors/transformResponse.interceptor';
+import { setUseDto } from 'src/decorator/use-dto.decorator';
 import { userResponseDto } from './dto/User-response.dto';
 
 @UseGuards(jwtAuthGuard)
@@ -35,7 +35,7 @@ export class AuthController {
         return await this.authService.register(dto)
     }
     @Public()
-    @UseDto(userResponseDto)
+    @setUseDto(123)
     @Get('LayDanhSachLoaiNguoiDung')
     async getTypeUserList() {
         return await this.authService.getTypeUserList()

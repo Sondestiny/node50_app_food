@@ -1,7 +1,8 @@
 import { Exclude, Expose } from "class-transformer";
-import { Timestamp } from "rxjs";
-
 export class userResponseDto {
+    constructor(partial: Partial<userResponseDto>) {
+        Object.assign(this, partial)
+    }
     @Expose()
     account: number;
 
@@ -28,9 +29,5 @@ export class userResponseDto {
 
     @Exclude()
     is_deleted: boolean;
-
-    constructor(partial: Partial<userResponseDto>) {
-        Object.assign(this, partial)
-    }
 }
 
