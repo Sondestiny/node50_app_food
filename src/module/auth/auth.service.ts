@@ -95,7 +95,7 @@ export class AuthService {
             this.prisma.users.count()
         ])
         const result = {
-            user:data, 
+            item: data, 
             total, 
             page, 
             lastPage: Math.ceil(total / limit)
@@ -124,7 +124,7 @@ export class AuthService {
             this.prisma.users.count({where: where})
         ])
         const result = {
-            user:data, 
+            item:data, 
             total, 
             page, 
             lastPage: Math.ceil(total / limit)

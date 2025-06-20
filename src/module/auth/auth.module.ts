@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { constants } from 'src/common/constants/constant';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { PrismaModule } from 'src/prisma/prisma.module';
+import { TransformResponseInterceptor } from 'src/common/interceptors/transformResponse.interceptor';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
     }),
     PrismaModule,
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, TransformResponseInterceptor],
   controllers: [AuthController]
 })
 export class AuthModule {}

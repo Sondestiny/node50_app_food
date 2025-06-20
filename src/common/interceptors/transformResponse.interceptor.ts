@@ -2,7 +2,7 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nes
 import { Reflector } from "@nestjs/core";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { Observable } from "rxjs";
-import { DTO_TYPE } from "src/decorator/use-dto.decorator";
+import { DTO_TYPE } from "src/decorator/set-dto-response.decorator";
 import {map} from 'rxjs/operators';
 import { userResponseDto } from "src/module/auth/dto/User-response.dto";
 @Injectable()
@@ -21,7 +21,6 @@ export class TransformResponseInterceptor<T>
       map((data) => {
         let transformedData = data;
         // Nếu controller trả về đã là instance DTO thì giữ nguyên
-        
         if (classType) {
           //nếu data là dạng dữ liệu array
           if(Array.isArray(data)) {
@@ -31,14 +30,31 @@ export class TransformResponseInterceptor<T>
               })
               return instanceToPlain(transformed);
             })
-          } else if ( classType && typeof data === "object" ) {
+            return transformedData;
+          }
+
+          //Nếu data là dang dữ liệu object với data.item là array
+          if (typeof data === "object" && Array.isArray(data.item) ) {
+            const transformedDataItem = data.item.map((i) => {
+              const transformed = plainToInstance(classType, i, {
+                excludeExtraneousValues: true
+              })
+              return instanceToPlain(transformed)
+            })
+            transformedData = {...data, item: transformedDataItem}
+            return transformedData;
+          }
+
+          //Nếu data là dang dữ liệu đơn object
+          if (typeof data === "object" ) {
             transformedData = instanceToPlain(
               plainToInstance(classType, data, {
                 excludeExtraneousValues: true,
               }))
+            return transformedData;
           }
         }
-        return transformedData;
+        return data;
       }),
     );
   }

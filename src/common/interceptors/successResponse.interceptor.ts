@@ -17,6 +17,7 @@ export class successResponseInterceptor<T> implements NestInterceptor<T, any> {
 
         return next.handle().pipe(
             map((originalData)=> {
+                console.log(originalData);
                 // Trường hợp service trả về object có key message + data
                 const hasCustom = originalData && typeof originalData === 'object';
                 const serviceMessage = hasCustom ? originalData.message : undefined;

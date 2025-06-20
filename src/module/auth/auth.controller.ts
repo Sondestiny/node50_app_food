@@ -10,7 +10,7 @@ import { LoginDto } from './dto/login.dto';
 import { registerDto } from './dto/register.dto';
 import { group } from 'console';
 import { TransformResponseInterceptor } from 'src/common/interceptors/transformResponse.interceptor';
-import { setUseDto } from 'src/decorator/use-dto.decorator';
+import { setDtoResponse } from 'src/decorator/set-dto-response.decorator';
 import { userResponseDto } from './dto/User-response.dto';
 
 @UseGuards(jwtAuthGuard)
@@ -35,12 +35,12 @@ export class AuthController {
         return await this.authService.register(dto)
     }
     @Public()
-    @setUseDto(userResponseDto)
     @Get('LayDanhSachLoaiNguoiDung')
     async getTypeUserList() {
         return await this.authService.getTypeUserList()
     }
     @Public()
+    @setDtoResponse(userResponseDto)
     @Get('LayDanhSachNguoiDung')
     async getUserList(
         @Query('MaNhom') group: string = 'GP01',
@@ -49,6 +49,7 @@ export class AuthController {
         return await this.authService.getUserList(group, sreach)
     }
     @Public()
+    @setDtoResponse(userResponseDto)
     @Get('LayDanhSachNguoiDungPhanTrang')
     async getUserListPaginated(
         @Query('MaNhom') group: string = 'GP01',
@@ -59,6 +60,7 @@ export class AuthController {
         return await this.authService.getUserListPaginated(group, sreach, Number(page), Number(limit))
     }
     @Public()
+    @setDtoResponse(userResponseDto)
     @Get('TimKiemNguoiDung')
     async sreachUser(
         @Query('MaNhom') group:string = 'GP01',
@@ -67,6 +69,7 @@ export class AuthController {
         return await this.authService.sreachUser(group, sreach)
     }
     @Public()
+    @setDtoResponse(userResponseDto)
     @Get('TimKiemNguoiDungPhanTrang')
     async sreachUserOfPage(
         @Query('MaNhom') group:string = 'GP01',
@@ -76,13 +79,13 @@ export class AuthController {
     ) {
         return this.authService.sreachUserOfPage(group, sreach, Number(page), Number(limit))
     }
-    @setUseDto(userResponseDto)
+    @setDtoResponse(userResponseDto)
     @Post('ThongTinTaiKhoan')
     getUserAccount(@Request() req) {
         const account = req.user.account
         return this.authService.getUserAccount(+account);
     }
-    @setUseDto(userResponseDto)
+    @setDtoResponse(userResponseDto)
     @Post('LayThongTinNguoiDung')
     getUserProfile(
         @Query('taiKhoan') account: string = '',
@@ -90,14 +93,14 @@ export class AuthController {
         {
         return this.authService.getUserInfo(account);
     }
-    @setUseDto(userResponseDto)
+    @setDtoResponse(userResponseDto)
     @Post('ThemNguoiDung')
     createUser(
         @Body() createUserDto : CreateUserDto
     ) {
         return this.authService.createUser(createUserDto);
     }
-    @setUseDto(userResponseDto)
+    @setDtoResponse(userResponseDto)
     @Put('CapNhatThongTinNguoiDung')
     updateUserByPut(
         @Request() req,
@@ -106,7 +109,7 @@ export class AuthController {
         const account= req.user.account
         return this.authService.updatedUser(updateUserDto, Number(account));
     }
-    @setUseDto(userResponseDto)
+    @setDtoResponse(userResponseDto)
     @Post('CapNhatThongTinNguoiDung')
     updateUserByPost(
         @Request() req,
