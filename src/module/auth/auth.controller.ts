@@ -8,10 +8,11 @@ import { CreateUserDto } from 'src/module/user/dto/create-user.dto';
 import { UpdateUserDto } from 'src/module/user/dto/update-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { registerDto } from './dto/register.dto';
-import { group } from 'console';
+
 import { TransformResponseInterceptor } from 'src/common/interceptors/transformResponse.interceptor';
 import { setDtoResponse } from 'src/decorator/set-dto-response.decorator';
 import { userResponseDto } from './dto/User-response.dto';
+import { loggingInterceptor } from 'src/common/interceptors/logging.interceptor';
 
 @UseGuards(jwtAuthGuard)
 @UseInterceptors(TransformResponseInterceptor)

@@ -1,21 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { UploadApiResponse } from 'cloudinary';
+import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
 import cloudinary from 'src/common/config/cloudinary.config';
+import { stream } from 'winston';
 @Injectable()
 export class CloudinaryService {
   async uploadVideo(file: Express.Multer.File): Promise<any> {
     return new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
+      const stream = cloudinary.uploader.upload_stream(
         {
           resource_type: 'video',
           folder: 'movie_videos',
         },
         (error, result) => {
-          if (error) return reject(error);
-          resolve(result);
-        },
+          return (error ? reject(error) : resolve(result))
+        } 
       ).end(file.buffer);
     });
+    
   }
   async uploadImage(file: Express.Multer.File): Promise<any> {
     return new Promise((resolve, reject) => {

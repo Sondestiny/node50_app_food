@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -12,11 +12,16 @@ import { BannerModule } from './module/banner/banner.module';
 import { TheaterModule } from './module/theater/theater.module';
 import { ShowtimesModule } from './module/showtimes/showtimes.module';
 import { ConfigModule } from '@nestjs/config';
+import { winstonLogger } from './Loggers/logger';
+import { WinstonModule } from 'nest-winston';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    WinstonModule.forRoot({
+      instance: winstonLogger
     }),
     PrismaModule, 
     AuthModule, 
@@ -31,7 +36,9 @@ import { ConfigModule } from '@nestjs/config';
   controllers: [AppController],
   providers: [
     AppService, 
-    PrismaService
+    PrismaService,
+    Logger
+    
   ],
 })
 export class AppModule {}
