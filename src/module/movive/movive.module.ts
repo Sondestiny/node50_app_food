@@ -4,6 +4,7 @@ import { MoviveController } from './movive.controller';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { BannerModule } from 'src/module/banner/banner.module';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Module({
   imports : [
@@ -12,6 +13,6 @@ import { BannerModule } from 'src/module/banner/banner.module';
     BannerModule
   ],
   controllers: [MoviveController],
-  providers: [MoviveService],
+  providers: [MoviveService, CloudinaryService],
 })
 export class MoviveModule {}

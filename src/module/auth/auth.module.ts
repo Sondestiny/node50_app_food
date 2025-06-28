@@ -9,6 +9,7 @@ import { constants } from 'src/common/constants/constant';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { TransformResponseInterceptor } from 'src/common/interceptors/transformResponse.interceptor';
+import { loggingInterceptor } from 'src/common/interceptors/logging.interceptor';
 
 @Module({
   imports: [

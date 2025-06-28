@@ -1,149 +1,146 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateMoviveDto } from './dto/create-movive.dto';
-import { UpdateMoviveDto } from './dto/update-movive.dto';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Data_Create_Movie_Dto } from './dto/create-movive.dto';
+import { Data_Update_Movive_Dto} from './dto/update-movive.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Timestamp } from 'rxjs';
-import { SearchByDateDto, SearchByPageDto } from './dto/sreach-movie.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class MoviveService {
   constructor(
     private prisma: PrismaService,
-    private cloudinary: CloudinaryService
+    private cloudinary: CloudinaryService,
+    @Inject(CACHE_MANAGER) private cacheManger: Cache
   ){}
   // lấy danh sách phim theo tên phim
-  async findAll(movie_name_sreach) {
+  async findAllByName(movie_name_sreach) {
+    const keyCache = `movie:all:${movie_name_sreach}`;
+    const dataCache = await this.cacheManger.get(keyCache);
+
+    if (dataCache) return { fromCache: true, data: dataCache };
     const movie_list = await this.prisma.movies.findMany({
       where: {
         movie_name: {contains: movie_name_sreach}
       }
     })
+    // Kiểm tra xem movie có tồn tại không ?
     if (!movie_list) throw new NotFoundException('Không tìm thấy tên phim phù hợp')
     return movie_list
   }
   // lấy danh sách phim theo tên phim, phân trang
-  async findAllWithPage(dto: SearchByPageDto) {
-    const {title, page =1, limit = 10} = dto;
+  async getMovieListPaginated (
+    query
+  ): Promise<any>{
+    console.log(query);
+    const title = query.tenPhim;
+    const page = query.soTrang;
+    const limit = query.soPhanTuTrenTrang;
+    
     const skip = (page - 1) * limit;
-    const where = {
-      movie_name: { 
-        contains: title, 
-        mode: 'insensitive' 
-      }
-    }
-    const [data, total] = await Promise.all([
+    const where = {movie_name: { contains: title}}
+
+    const [item, total] = await Promise.all([
       this.prisma.movies.findMany({
-      skip: skip,
-      take: limit,
-      where: where,
-      select: {
-        id: true,
-        movie_name: true,
-        discription: true,
-        premiere_date: true,
-        image: true,
-        is_showing: true,
-        coming_soon: true
-      }
+        where: where,
+        skip: skip,
+        take: limit
       }),
-      this.prisma.movies.count({where: where})
+      this.prisma.movies.count({
+        where: where}
+      )
     ])
-    if (!data) throw new NotFoundException('Không tìm thấy tên phim phù hợp')
-    return {data, total, page, lastPage: Math.ceil(total / limit)}
+    // Kiểm tra xem movie có tồn tại không ?
+    if (!item) throw new NotFoundException('Không tìm thấy tên phim phù hợp')
+    const result = {
+            item: item, 
+            total,
+            page,
+            lastPage: Math.ceil(total / limit)
+        }
+    return result
   }
   // lấy danh sách phim theo tên phim, có phân trang, có lọc theo ngày
-  async findAllWithPageAndDay(dto: SearchByDateDto) {
-    const {title, startDate, endDate, page = 1, limit = 10} = dto
+  async findAllWithPageAndDay(query) {
+    const title = query.tenPhim;
+    const page = query.soTrang;
+    const limit = query.soPhanTuTrenTrang;
+    const startDate = query.tuNgay;
+    const endDate = query.denNgay;
+
     const skip = (page - 1) * limit;
+
     const where = {
-      movie_name: { 
-        contains: title, 
-        mode: 'insensitive' 
-      },
-      show_time: {
-        some: {
-          date_release: {
-            ...(startDate && { gte: new Date(startDate) }),
-            ...(endDate && { lte: new Date(endDate) }),
+          movie_name: {
+            contains: title,
           },
+          ShowTimes: {
+            some: {
+              date_release: {
+                gte: new Date(startDate),
+                lte: new Date(endDate)
+              }
+            }
+          }
         }
-      }
-    }
-    const [data, total] = await Promise.all([
+    const [item, total] = await Promise.all([
       this.prisma.movies.findMany({
-      skip: skip,
-      take: limit,
-      where: where,
-      select: {
-        id: true,
-        movie_name: true,
-        discription: true,
-        premiere_date: true,
-        image: true,
-        is_showing: true,
-        coming_soon: true
-      }
+        skip: skip,
+        take: limit,
+        where: where
       }),
-      this.prisma.movies.count({where: where})
+      this.prisma.movies.count({
+        where: where
+      })
     ])
-    if (!data) throw new NotFoundException('Không tìm thấy tên phim với ngày chiếu phù hợp')
-    return {data, total, page, lastPage: Math.ceil(total / limit)}
+    // Kiểm tra xem movie có tồn tại không ?
+    if (!item) throw new NotFoundException('Không tìm thấy tên phim với ngày chiếu phù hợp')
+    const result = {
+            item: item, 
+            total, 
+            page, 
+            lastPage: Math.ceil(total / limit)
+        }
+    return result
   }
-  async create(dto: CreateMoviveDto) {
+  async create(dto: Data_Create_Movie_Dto) {
+    const movie = await this.prisma.movies.findFirst({
+      where: {
+        movie_name: dto.movie_name,
+      }
+    })
+    if(movie) throw new BadRequestException('Movie đã tồn tại')
+    const string_premiere_date = dto.premiere_date;
+      return await this.prisma.movies.create({
+      data: dto
+    })
+  }
+
+  async update(dto: Data_Update_Movive_Dto) {
+    // Kiểm tra xem movie muốn update có tồn tại không ?
     const movie = await this.prisma.movies.findFirst({
       where: {
         movie_name: dto.movie_name
       }
     })
-    if(movie) throw new BadRequestException('Movie đã tồn tại')
-    return await this.prisma.movies.create({
-      data: dto
-    })
-  }
-
-  async updateMovieVideo(
-    id: number, 
-    dto: UpdateMoviveDto, 
-    files: {
-      image?: Express.Multer.File[],
-      video?: Express.Multer.File[]
-    }
-  ) {
-    // Kiểm tra xem movie muốn update có tồn tại không ?
-    const movie = await this.prisma.movies.findUnique({
-      where: {id}
-    })
     if(!movie) throw new NotFoundException('Movie not found')
 
-    const dataToUpdate: any = { ...dto };
 
-    // upload image lên cloudinary
-    if(files.image && files.image.length > 0) {
-      // Xóa ảnh cũ trên cloudinary
-      if(movie.image) {
+    // kiểm tra nếu trong dữ liệu dto gửi lên và data đều có image thì xóa image trong dữ liệu trên cloudinary đi
+    if(dto.image && movie.image) {
         const public_id = this.cloudinary.getPublicIdFromUrl(movie.image);
         await this.cloudinary.deleteFile(public_id)
-      }
-      // upload ảnh mới
-      const imageUpload = await this.cloudinary.uploadImage(files.image[0])
-      dataToUpdate.image = imageUpload.secure_url
     }
     
-    // upload video lên cloudinary
-    if(files.video && files.video.length > 0) {
-      // xóa video cũ trên cloudinary
-      if(movie.trailer) {
+    // kiểm tra nếu trong dữ liệu dto gửi lên và data đều có trailer thì xóa trailer trong dữ liệu trên cloudinary đi
+    if(dto.trailer && movie.trailer) {
         const public_id = this.cloudinary.getPublicIdFromUrl(movie.trailer);
         await this.cloudinary.deleteFile(public_id)
       }
-      // upload video mới lên cloudinary
-      const videoUpload = await this.cloudinary.uploadVideo(files.video[0])
-      dataToUpdate.trailer = videoUpload.secure_url
-    }
     return await this.prisma.movies.update({
-      where: {id},
-      data: dataToUpdate
+      where: {
+        id: movie.id
+      },
+      data: dto
     })
   }
 
@@ -168,23 +165,17 @@ export class MoviveService {
     return { 
       message: 'Movie deleted successfully' ,
       statuscode: 200,
-
     }
   }
   async getDetail(movie_id:number) {
     const movie = await this.prisma.movies.findUnique({
       where: {id: movie_id},
-      select: {
-        id: true,
-        movie_name: true,
-        discription: true,
-        premiere_date: true,
-        image: true,
-        is_showing: true,
-        coming_soon: true
-      }
     })
     if(!movie) throw new NotFoundException('movie not found');
     return movie
   }
 }
+function InjectCacheManager(): (target: typeof MoviveService, propertyKey: undefined, parameterIndex: 2) => void {
+  throw new Error('Function not implemented.');
+}
+

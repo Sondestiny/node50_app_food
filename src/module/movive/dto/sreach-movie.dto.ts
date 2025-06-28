@@ -4,37 +4,40 @@ import { IsOptional, IsDateString, IsString, IsInt, Min } from 'class-validator'
 export class SearchByDateDto {
   @IsOptional()
   @IsString()
-  title?: string;
+  tenPhim?: string;
+
   @IsOptional()
   @IsDateString()
-  startDate?: string;
+  tuNgay?: string;
   @IsOptional()
   @IsDateString()
-  endDate?: string;
+  denNgay?: string;
   @Type(() => Number)
   @IsOptional()
   @IsInt()
   @Min(1)
-  page?: number = 1;
+  soTrang?: number = 1;
   @Type(() => Number)
   @IsOptional()
   @IsInt()
   @Min(1)
-  limit?: number = 10;
+  soPhanTuTrenTrang?: number = 10;
 }
 
 export class SearchByPageDto {
   @IsOptional()
   @IsString()
-  title?: string;
+  tenPhim?: string;
+
   @Type(() => Number)
   @IsOptional()
   @IsInt()
   @Min(1)
-  page?: number = 1;
+  soTrang?: number = 1;
+  
   @Type(() => Number)
   @IsOptional()
   @IsInt()
   @Min(1)
-  limit?: number = 10;
+  soPhanTuTrenTrang?: number = 10;
 }
